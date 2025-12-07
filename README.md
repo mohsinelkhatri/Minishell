@@ -1,171 +1,222 @@
-# 🐚 Minishell
+<h1 align="center">🐚 Minishell – A Tiny Shell Implementation (42 / 1337 School)</h1>
 
-## 📖 What is Minishell?
+<p align="center">
+  <img src="https://img.shields.io/badge/Language-C-blue?style=for-the-badge">
+  <img src="https://img.shields.io/badge/Project-Minishell-green?style=for-the-badge">
+  <img src="https://img.shields.io/badge/Status-Mandatory%20Only-orange?style=for-the-badge">
+</p>
 
-**Minishell** is a simplified Unix shell implemented in C.  
-A shell is a command-line interface that lets users interact with the operating system by typing commands. Minishell simulates basic behaviors of shells like `bash`, such as running commands, handling pipes, redirections, environment variables, and built-in functions.
+<p style="font-size:16px;">
+The <strong>minishell</strong> project focuses on building a simplified version of the Bash shell.  
+It teaches process control, parsing, environment management, signals, and executing commands.  
+This README describes the <strong>mandatory part only</strong>, without bonuses.
+</p>
 
----
+<hr>
 
-## 🎯 Project Goal
+<h2 align="center">✨ Project Summary</h2>
 
-The objective of this project is to:
+<p>
+Your minishell must behave like a simplified Bash terminal.  
+It should read input, parse it, interpret shell syntax, and execute commands with correct behavior.
+</p>
 
-- Understand the internal mechanics of a Unix shell.
-- Learn how to create and manage processes (`fork`, `execve`, `pipe`, `wait`, etc.).
-- Handle Unix signals like `Ctrl+C`, `Ctrl+D`, and `Ctrl+\`.
-- Parse and execute commands with proper handling of quotes, redirections, and variables.
-- Manage environment variables and command history.
-- Implement an interactive and functional shell with a clean, minimal, and leak-free codebase.
-- Respect strict project constraints such as using only **one global variable** (only for signal handling).
+<p>
+You must handle:
+</p>
 
-In short: **Recreate a basic shell from scratch, close to how Bash works, while learning low-level system programming.**
+<ul>
+  <li>Command execution</li>
+  <li>Builtins</li>
+  <li>Pipes</li>
+  <li>Redirections</li>
+  <li>Environment variables</li>
+  <li>Signals</li>
+  <li>Error messages</li>
+</ul>
 
----
+<p>No bonus features (history search, logical operators, wildcard expansions, etc.) are included.</p>
 
-## 📁 Turn-in Files
+<hr>
 
-- All source files (`*.c`)
-- All header files (`*.h`)
-- A working `Makefile` with required rules
+<h2 align="center">📥 Input Handling & Parsing</h2>
 
----
+<p>Your minishell must:</p>
 
-## ⚙️ Makefile Rules
+<ul>
+  <li>Display a prompt</li>
+  <li>Read user input via <strong>readline()</strong></li>
+  <li>Expand environment variables (<code>$VAR</code>)</li>
+  <li>Handle single quotes <code>' '</code> (no expansion)</li>
+  <li>Handle double quotes <code>" "</code> (with expansion)</li>
+  <li>Split commands by pipes <code>|</code></li>
+  <li>Interpret redirections:
+    <ul>
+      <li><code>></code> → redirect output (truncate)</li>
+      <li><code>>></code> → redirect output (append)</li>
+      <li><code><</code> → redirect input</li>
+      <li><code><<</code> → heredoc</li>
+    </ul>
+  </li>
+  <li>Build an abstract representation of the command pipeline</li>
+</ul>
 
-| Rule     | Description                               |
-|----------|-------------------------------------------|
-| `NAME`   | Builds the executable `minishell`         |
-| `all`    | Compiles the program                      |
-| `clean`  | Removes object files                      |
-| `fclean` | Removes object files and the executable   |
-| `re`     | Cleans and rebuilds the project           |
+<p>Invalid syntax must trigger error messages without crashing the shell.</p>
 
----
+<hr>
 
-## 🧾 Mandatory Features
+<h2 align="center">⚙️ Command Execution</h2>
 
-Your shell must:
+<p>Minishell must replicate Bash-like execution:</p>
 
-- Display a prompt while waiting for input
-- Use the `readline()` library to read user input and store command history
-- Parse and execute commands
-- Find executables using relative/absolute path or the `PATH` variable
-- Use **only one** global variable to store signal values
-- Correctly handle:
-  - **Single quotes (`'`)**: prevent all interpretation
-  - **Double quotes (`"`)**: allow variable expansion but prevent other interpretations
-- Reject unclosed quotes and unsupported characters like `\` and `;`
-- Support redirections:
-  - `<`  – input redirection
-  - `>`  – output redirection
-  - `>>` – append output redirection
-  - `<<` – here-document (does not update history)
-- Implement **pipes (`|`)** for command chaining
-- Handle **environment variables (`$VAR`)** and special variable `$?`
-- Support correct behavior for:
-  - `Ctrl+C` → display a new prompt
-  - `Ctrl+D` → exit the shell
-  - `Ctrl+\` → do nothing
-- Execute built-in commands (see list below)
-- Be free of **memory leaks**
+<ul>
+  <li>Run binaries using <strong>fork()</strong>, <strong>execve()</strong> & <strong>wait()</strong></li>
+  <li>Search commands through the <code>PATH</code> environment variable</li>
+  <li>Apply redirections before executing a command</li>
+  <li>Handle multiple pipes:
+    <pre>| cmd1 | cmd2 | cmd3 | ...</pre>
+  </li>
+  <li>Correctly propagate return values (<code>$?</code>)</li>
+</ul>
 
----
+<p>Each command in a pipeline must run in its own process.</p>
 
-## 🛠️ Allowed External Functions
+<hr>
 
-### Readline library:
-- `readline`
-- `add_history`
-- `rl_clear_history`
-- `rl_on_new_line`
-- `rl_replace_line`
-- `rl_redisplay`
+<h2 align="center">🧩 Builtins (Mandatory)</h2>
 
-### Standard functions:
-- `printf`, `malloc`, `free`, `write`, `access`, `open`, `read`, `close`, `exit`
+<p>Your minishell must implement these builtins:</p>
 
-### Process management:
-- `fork`, `wait`, `waitpid`, `wait3`, `wait4`, `kill`
+<ul>
+  <li><strong>echo</strong> (with -n option)</li>
+  <li><strong>cd</strong></li>
+  <li><strong>pwd</strong></li>
+  <li><strong>export</strong></li>
+  <li><strong>unset</strong></li>
+  <li><strong>env</strong></li>
+  <li><strong>exit</strong></li>
+</ul>
 
-### Signal handling:
-- `signal`, `sigaction`, `sigemptyset`, `sigaddset`
+<p>
+Builtins must execute **without forking** when used alone,  
+and **inside forks** when part of a pipeline.
+</p>
 
-### File system:
-- `getcwd`, `chdir`, `stat`, `lstat`, `fstat`, `unlink`, `execve`
+<hr>
 
-### File descriptors:
-- `dup`, `dup2`, `pipe`
+<h2 align="center">📦 Environment Variables</h2>
 
-### Directory handling:
-- `opendir`, `readdir`, `closedir`
+<p>Your shell must maintain its own environment list:</p>
 
-### Errors:
-- `strerror`, `perror`
+<ul>
+  <li>Retrieve original environment upon startup</li>
+  <li>Allow adding variables (export)</li>
+  <li>Allow removing variables (unset)</li>
+  <li>Expand variables in input (<code>$USER</code>, <code>$PATH</code>, <code>$?</code>)</li>
+</ul>
 
-### Terminal functions:
-- `isatty`, `ttyname`, `ttyslot`, `ioctl`
+<p>Unset or empty variables must behave exactly like Bash.</p>
 
-### Environment and termcap:
-- `getenv`, `tcsetattr`, `tcgetattr`, `tgetent`, `tgetflag`, `tgetnum`, `tgetstr`, `tgoto`, `tputs`
+<hr>
 
----
+<h2 align="center">📡 Signals Handling</h2>
 
-## 📚 Libft
+<p>You must reproduce Bash-like signal behavior:</p>
 
-Use of your own `libft` is allowed and encouraged to simplify string manipulation, memory management, and list operations.
+<ul>
+  <li><strong>CTRL+C</strong> → interrupts prompt, prints new line</li>
+  <li><strong>CTRL+D</strong> → exits minishell (EOF)</li>
+  <li><strong>CTRL+\</strong> → ignored (no core dump)</li>
+</ul>
 
----
+<p>When running a child process:</p>
 
-## 🧩 Built-in Commands
+<ul>
+  <li>CTRL+C must kill child only</li>
+  <li>CTRL+\ must show "Quit (core dumped)" like Bash</li>
+</ul>
 
-| Command   | Description                                     |
-|-----------|-------------------------------------------------|
-| `echo`    | Prints text to the terminal. Supports `-n`.     |
-| `cd`      | Changes the current working directory.          |
-| `pwd`     | Displays the current directory.                 |
-| `export`  | Sets environment variables.                     |
-| `unset`   | Removes environment variables.                  |
-| `env`     | Prints the current environment.                 |
-| `exit`    | Exits the shell.                                |
+<hr>
 
----
+<h2 align="center">📃 Redirections & Heredoc</h2>
 
-## ⚠️ Signals Handling
+<ul>
+  <li><strong>Infile:</strong> <code>< file</code></li>
+  <li><strong>Outfile:</strong> <code> > file </code></li>
+  <li><strong>Append:</strong> <code> >> file </code></li>
+  <li><strong>Heredoc:</strong> <code> << delimiter </code></li>
+</ul>
 
-| Signal    | Behavior                                      |
-|-----------|-----------------------------------------------|
-| `Ctrl+C`  | Interrupt current input and display new prompt |
-| `Ctrl+D`  | Exit the shell                                 |
-| `Ctrl+\`  | Ignored (does nothing)                         |
+<p>Rules:</p>
 
-> You may use only **one global variable** to handle signals.  
-> This variable must store the **signal number only**, and must not access any other data.
+<ul>
+  <li>Heredoc must behave like Bash</li>
+  <li>Heredoc stops expansion when using quotes</li>
+  <li>Redirection errors must display proper messages</li>
+</ul>
 
----
+<hr>
 
-## 🧠 Memory Management
+<h2 align="center">🔍 Error Messages</h2>
 
-- Your code **must be free of memory leaks**
-- Memory leaks caused by the `readline()` library are **not your responsibility**
-- Use `valgrind` or similar tools to check for leaks and invalid memory usage
+<p>Your minishell must print meaningful errors:</p>
 
----
+<ul>
+  <li>Command not found</li>
+  <li>No such file or directory</li>
+  <li>Permission denied</li>
+  <li>Syntax errors</li>
+  <li>Export errors</li>
+</ul>
 
-## 🧪 Test Cases & Examples
+<p>The exit code must match Bash behavior.</p>
 
-Here are some example commands you can run inside your Minishell to test functionality:
+<hr>
 
-```bash
-echo Hello World
-echo "$USER"
-cd /
-pwd
-export MYVAR=42
-echo $MYVAR
-unset MYVAR
-echo $MYVAR
-ls | grep minishell > result.txt
-cat < input.txt | wc -l
-echo $?
+<h2 align="center">🚀 Running Minishell</h2>
 
+<pre style="background:#1e1e1e; color:white; padding:12px; border-radius:8px;">
+make
+./minishell
+</pre>
+
+<p>Example session:</p>
+
+<pre style="background:#1e1e1e; color:white; padding:12px; border-radius:8px;">
+minishell$ echo hello
+hello
+
+minishell$ export NAME=42
+minishell$ echo $NAME
+42
+
+minishell$ ls | wc -l
+8
+</pre>
+
+<hr>
+
+<h2 align="center">📚 What You Learn in Minishell</h2>
+
+<ul>
+  <li>Building a real shell from scratch</li>
+  <li>Command parsing & tokenization</li>
+  <li>Process creation and pipes</li>
+  <li>Environment variable management</li>
+  <li>Deadlocks, zombies, and signal handling</li>
+  <li>Memory management in large systems</li>
+  <li>Reproducing Bash logic</li>
+</ul>
+
+<hr>
+
+<h2 align="center">📜 License</h2>
+
+<p style="font-size:16px;">
+This documentation is prepared for students of <strong>42 Network / 1337 School</strong>.  
+You may reuse or modify it for learning or project submission.
+</p>
+
+<hr>
+
+<h1 align="center">🐚 Happy Coding — May Your Shell Never Segfault! 🚀</h1>
