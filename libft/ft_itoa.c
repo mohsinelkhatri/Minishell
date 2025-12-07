@@ -1,0 +1,58 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ft_itoa.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: aoussama <aoussama@student.1337.ma>        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/10/27 15:45:11 by aoussama          #+#    #+#             */
+/*   Updated: 2025/08/24 20:09:04 by aoussama         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "libft.h"
+
+static int	ft_count(int n)
+{
+	int	count;
+
+	count = 0;
+	if (n == 0)
+		return (1);
+	if (n < 0)
+		count++;
+	while (n != 0)
+	{
+		n /= 10;
+		count++;
+	}
+	return (count);
+}
+
+char	*ft_itoa(int n)
+{
+	char	*reslt;
+	int		len;
+	long	j;
+
+	j = n;
+	len = ft_count(j);
+	reslt = (char *)ft_malloc((len + 1) * sizeof(char),
+			&(set_get_data(NULL)->lst_gc_g));
+	reslt[len] = '\0';
+	len--;
+	if (j == 0)
+		reslt[len] = '0';
+	if (j < 0)
+	{
+		reslt[0] = '-';
+		j *= -1;
+	}
+	while (j > 0)
+	{
+		reslt[len] = (j % 10) + 48;
+		j = j / 10;
+		len--;
+	}
+	return (reslt);
+}
